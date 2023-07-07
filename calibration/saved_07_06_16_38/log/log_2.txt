@@ -1,0 +1,10 @@
+[17:15:17.654] camera data path : C://Users//HP//Desktop//hzq//hanglok-robotics//calibration//calibration_data.json
+[17:15:17.655] images and gripper position data path : C://Users//HP//Desktop//hzq//hanglok-robotics//calibration//saved_07_06_16_38/
+[17:15:17.655] Taltal 51 points detected in gripper position document
+[17:15:18.506] The number of valid data : 43
+[17:15:18.510] R camera to gripper: [[ 0.90694586  0.22910749 -0.35349535]
+ [-0.22843436  0.97255324  0.0442485 ]
+ [ 0.35393071  0.04061949  0.93438916]]
+[17:15:18.514] T camera to gripper: [[-164.09317415]
+ [ 107.08039988]
+ [ 113.00225244]]
