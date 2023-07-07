@@ -1,0 +1,4 @@
+export ORIGINAL_DATA_PATH=''
+export PROCESSED_DATA_PATH=''
+
+python data_preprocess.py --DATA_PATH=$ORIGINAL_DATA_PATH --TAR_PATH=$PROCESSED_DATA_PATH
