@@ -13,14 +13,19 @@ import cv2.aruco as aruco
 from calibration.utils import *
 
 def main():
-    # Camera Format, please refer to camera document
+    # current time
+    now = str(datetime.now())
+    current_time = now[5:7]+'_'+now[8:10]+'_'+now[11:13]+'_'+now[14:16]
+    # save path of images and position information
+    SAVE_DIR = f'TBC//saved_'+current_time
+
     fps, w, h = 30, 1280, 720
 
     # current time
     now = str(datetime.now())
     current_time = now[5:7]+'_'+now[8:10]+'_'+now[11:13]+'_'+now[14:16]
     # save path of images and position information
-    SAVE_DIR = f'C://Users//HP//Desktop//hzq//hanglok-robotics//calibration//saved_'+current_time
+    
 
     create_dir(SAVE_DIR)
     # SAVE_DIR = os.path.join(SAVE_DIR,current_time)
