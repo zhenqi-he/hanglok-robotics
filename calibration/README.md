@@ -16,3 +16,7 @@ Please move the gripper for each time. The system will not take the next image i
 ```bash
 python record_robot_position.py
 ```
+
+## 2, Hand-Eye Calibration
+
+In this system, we have n groups of gripper position information and corresponding image taken by the camera on the gripper at that position. As the position of marker (named Target in the figure) and the position of the robot base do not change so their corresponding transformation matrix also remain constant. Therefore, by $M_{t2c}_{i}\$
