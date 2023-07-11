@@ -13,16 +13,19 @@ def main():
 
     DATA_PATH = args.DATA_PATH
     TAR_PATH = args.TAR_PATH
+    print(DATA_PATH)
 
     create_dir(TAR_PATH)
     create_dir(os.path.join(TAR_PATH,'images'))
 
     img_lists = sorted(glob.glob(os.path.join(DATA_PATH,'*.png')))
 
-    print(img_lists[:5])
+    # print(img_lists[:5])
     for imgP in img_lists:
+        # print(imgP)
         if 'color' in imgP:
-            image_name = imgP[:-10].replace(DATA_PATH+'\\','')
+            image_name = imgP[:-10].replace(DATA_PATH+'/','')
+            print(image_name)
             if len(image_name) == 1:
                 image_name = '000'+image_name
             elif len(image_name) == 2:
@@ -33,11 +36,11 @@ def main():
             #     image_name = image_name
             image_name += '.png'
             
-            print(image_name)
+            # print(image_name)
             des_path = os.path.join(TAR_PATH,'images',image_name)
             # print(des_path)
             shutil.copy2(imgP,des_path)
-
+    print(des_path)
 
 
 if __name__ == '__main__':

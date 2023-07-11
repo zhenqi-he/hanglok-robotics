@@ -38,9 +38,9 @@ def main():
         
         if len(str(i)) == 1:
             image_name = '000'+str(i)+'.png'
-        elif len(image_name) == 2:
+        elif len(str(i)) == 2:
             image_name = '00'+str(i)+'.png'
-        elif len(image_name) == 3:
+        elif len(str(i)) == 3:
             image_name = '0'+str(i)+'.png'
         
         img_path = os.path.join(input_image_path,image_name)
