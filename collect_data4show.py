@@ -19,14 +19,15 @@ import argparse
 import glob
 import random
 
+jaka_ip = "10.5.5.100"
 def create_dir(dir):
     if not os.path.exists(dir):
         os.mkdir(dir)
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--calibration_json_dir', default=f'C://Users//HP//Desktop//hzq//hanglok-robotics//nerf//processed_07_06_18_40//transforms.json') 
     parser.add_argument('--calibration_image_dir', default=f'C://Users//HP//Desktop//hzq//hanglok-robotics//calibration//saved_07_06_16_38') 
-    parser.add_argument('--calibration_json_dir', default=f'C://Users//HP//Desktop//hzq//hanglok-robotics//calibration//saved_07_06_16_38') 
-    parser.add_argument('--save_dir', default=f'C://Users//HP//Desktop//hzq//hanglok-robotics//calibration//') 
+    parser.add_argument('--save_dir', default=f'C://Users//HP//Desktop//hzq//data4show') 
     args = parser.parse_args()
  
     data_path = args.calibration_image_dir
@@ -38,15 +39,15 @@ def main():
     fps, w, h = 30, 1280, 720
 
     # current time
-    now = str(datetime.now())
-    current_time = now[5:7]+'_'+now[8:10]+'_'+now[11:13]+'_'+now[14:16]
+    # now = str(datetime.now())
+    # current_time = now[5:7]+'_'+now[8:10]+'_'+now[11:13]+'_'+now[14:16]
     # save path of images and position information
     create_dir(save_dir)
-    SAVE_DIR = os.path.join(save_dir,current_time)
-    create_dir(SAVE_DIR)
-    SAVE_IMG_DIR = os.path.join(SAVE_DIR,'images')
+    # SAVE_DIR = os.path.join(save_dir,current_time)
+    # create_dir(SAVE_DIR)
+    SAVE_IMG_DIR = os.path.join(save_dir,'images')
     create_dir(SAVE_IMG_DIR)
-    output_json_path = os.path.join(SAVE_DIR,'transforms.json')
+    output_json_path = os.path.join(save_dir,'transforms.json')
 
     # Read Previous Camera Data
     transforms_json = json.load(open(data_json_path))
@@ -72,22 +73,24 @@ def main():
     logger.setLevel(logging.DEBUG)
 
     # 102 is left, 100 is right
-    arm  = HagJkrc(logger, "192.168.10.102")
+    arm  = HagJkrc(logger, jaka_ip)
     arm.init_robot()
     print("Succesfully ini robot")
 
     cam = Camera(w, h, fps)
     print("Successfully init camera")
 
-    valid_position_id = []
+    valid_position_id = {}
     for i in range(len(transforms)):
-        file_path = transforms['frames'][i]['file_path']
+        file_path = transforms[i]['file_path']
         image_id = int(file_path.split('/')[-1].split('.')[0])
-        valid_position_id.append(image_id)
+        valid_position_id[i] = image_id
+        # print("id: {}, i : {}".format(image_id,i))
     
     frames = []
-    for i in valid_position_id:
-        pnt = position_info[i]
+    # valid_position_id.sort()
+    for i in list(valid_position_id.keys()):
+        pnt = position_info[valid_position_id[i]]
         arm.move_to_point(pnt, 20)
         time.sleep(0.5)
         color_image, depth_image, colorizer_depth = cam.get_frame()
@@ -105,15 +108,15 @@ def main():
         saved_img_name = os.path.join(SAVE_IMG_DIR,image_name)
 
         cv2.imwrite(saved_img_name,color_image)
-        frame = {"file_path":SAVE_IMG_DIR,"sharpness":transforms[i]['sharpness'],"transform_matrix":transforms[i]['transform_matrix']}
+        frame = {"file_path":saved_img_name,"sharpness":transforms[i]['sharpness'],"transform_matrix":transforms[i]['transform_matrix']}
         frames.append(frame)
 
         time.sleep(0.5)
 
 
     out = {
-			"camera_angle_x": 1.2230789030277986,
-			"camera_angle_y": 0.7517771630122048,
+			"camera_angle_x": camera_angle_x,
+			"camera_angle_y": camera_angle_y,
 			"fl_x": 912.266,
 			"fl_y": 911.672,
 			"k1": 0,
@@ -127,12 +130,13 @@ def main():
 			"cy": 375.817,
 			"w": 1280,
 			"h": 720,
-			"aabb_scale": 8,
+			"aabb_scale": 4,
 			"frames": frames,
 		  }
     
     with open(output_json_path, "w") as outfile:
 	    json.dump(out, outfile, indent=2)
+    cam.release()
 
 
 if __name__ == '__main__':

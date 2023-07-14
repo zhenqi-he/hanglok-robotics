@@ -12,12 +12,14 @@ from datetime import datetime
 import cv2.aruco as aruco
 from calibration.utils import *
 
+
+jaka_ip = "10.5.5.100"
 def main():
     # current time
     now = str(datetime.now())
     current_time = now[5:7]+'_'+now[8:10]+'_'+now[11:13]+'_'+now[14:16]
     # save path of images and position information
-    SAVE_DIR = f'TBC//saved_'+current_time
+    SAVE_DIR = f'C://Users//HP//Desktop//hzq//hanglok-robotics//calibration//saved_'+current_time
 
     fps, w, h = 30, 1280, 720
 
@@ -47,7 +49,7 @@ def main():
     logger.setLevel(logging.DEBUG)
 
     # 102 is left, 100 is right
-    arm  = HagJkrc(logger, "192.168.10.102")
+    arm  = HagJkrc(logger, jaka_ip)
     arm.init_robot()
     print("Succesfully ini robot")
 
