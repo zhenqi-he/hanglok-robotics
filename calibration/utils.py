@@ -62,7 +62,7 @@ def gripper2base(pnt):
 
 def target2camera(img_path,aruco_dict,intr_matrix):
     ## the distortion coefficients of our camera is zero
-    distCoeffs = np.zeros((5,1))
+    
 
     img = cv2.imread(img_path)
     status = False
@@ -93,6 +93,7 @@ def target2camera(img_path,aruco_dict,intr_matrix):
  
     # if successfully detected 4 corner points
     if markerIds is not None:
+        distCoeffs = np.zeros((5,1))
         if markerCorners[0][0].shape[0] == 4:
             
             retval, rvec, T_target2camera = cv2.solvePnP(world_coor, markerCorners[0][0], intr_matrix, distCoeffs,flags=cv2.SOLVEPNP_IPPE_SQUARE)

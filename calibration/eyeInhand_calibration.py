@@ -68,7 +68,6 @@ def main():
 
             M_gripper2base = np.row_stack((np.column_stack((R_gripper2base,T_gripper2base)),np.array([0,0,0,1])))
             M_base2gripper = np.linalg.inv(M_gripper2base)
-
             R_base2gripper = M_base2gripper[:3,:3]
             T_base2gripper = M_base2gripper[:3,3]
             R_base2gripper_lists.append(R_base2gripper)
@@ -86,14 +85,14 @@ def main():
     # num_train = len(R_gripper2base_lists)-5
 
     ## gripper to base
-    R_gripper2base_lists_train = R_gripper2base_lists[:num_train]
-    T_gripper2base_lists_train = T_gripper2base_lists[:num_train]
+    R_gripper2base_lists_train = R_gripper2base_lists[:]
+    T_gripper2base_lists_train = T_gripper2base_lists[:]
     ### base to gripper
     R_base2gripper_lists_train = R_base2gripper_lists[:num_train]
     T_base2gripper_lists_train = T_base2gripper_lists[:num_train]
 
-    R_target2camera_lists_train = R_target2camera_lists[:num_train]
-    T_target2camera_lists_train = T_target2camera_lists[:num_train]
+    R_target2camera_lists_train = R_target2camera_lists[:]
+    T_target2camera_lists_train = T_target2camera_lists[:]
 
     R_camera2gripper, T_camera2gripper = cv2.calibrateHandEye(R_gripper2base_lists_train, T_gripper2base_lists_train,R_target2camera_lists_train, T_target2camera_lists_train,method=cv2.CALIB_HAND_EYE_ANDREFF)
     # R_base2target, T_base2target,R_gripper2cam, T_gripper2cam = cv2.calibrateRobotWorldHandEye(R_target2camera_lists_train, T_target2camera_lists_train,R_base2gripper_lists_train, T_base2gripper_lists_train,method=cv2.CALIB_HAND_EYE_ANDREFF)
