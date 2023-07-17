@@ -60,6 +60,24 @@ def gripper2base(pnt):
     return R_gripper2base, T_gripper2base
     # return np.array([[rx],[ry],[rz]]), T_gripper2base
 
+
+def check_calculated_extrinsicM(corners,extr_matrix,intr_matrix):
+    l2_distance = 0.0
+    for i in range(corners.shape[0]):
+       
+        for n,p in enumerate([[0,1,0],[1,1,0],[1,0,0],[0,0,0]]):
+            p.append(1)
+            c_p = extr_matrix@np.array(p)
+            pix_cor = intr_matrix@c_p[:3]
+
+            pix_cor_2D = [pix_cor[0]/pix_cor[2],pix_cor[1]/pix_cor[2]]
+            l2_distance += 0.5*(math.pow((corners[i][0]-pix_cor_2D[0]),2)+math.pow((corners[i][1]-pix_cor_2D[1]),2))
+    l2_distance = l2_distance/corners.shape[0]
+    if l2_distance > 5:
+        return False
+    else:
+        return True
+
 def target2camera(img_path,aruco_dict,intr_matrix):
     ## the distortion coefficients of our camera is zero
     
