@@ -101,10 +101,14 @@ def cal_camera_extrinsic(img_path,aruco_dict=aruco.getPredefinedDictionary(aruco
     markerCorners, markerIds, rejectedCandidates = detector.detectMarkers(img)
 
     world_coor = np.zeros((4,3),dtype=np.float32)
-    world_coor[1,:] = [0.5,0.5,0]
-    world_coor[2,:] = [0.5,-0.5,0]
-    world_coor[3,:] = [-0.5,-0.5,0]
-    world_coor[0,:] = [-0.5,0.5,0]
+    # world_coor[1,:] = [0.5,0.5,0]
+    # world_coor[2,:] = [0.5,-0.5,0]
+    # world_coor[3,:] = [-0.5,-0.5,0]
+    # world_coor[0,:] = [-0.5,0.5,0]
+    world_coor[0,:] = [0,1,0]
+    world_coor[1,:] = [1,1,0]
+    world_coor[2,:] = [1,0,0]
+    world_coor[3,:] = [0,0,0]
     
 
     
@@ -117,14 +121,14 @@ def cal_camera_extrinsic(img_path,aruco_dict=aruco.getPredefinedDictionary(aruco
             corners[2,:] = markerCorners[0][0][2]
             corners[3,:] = markerCorners[0][0][3]
             # markerCorners = markerCorners[0][0].transpose(3,0,1,2)
-            # retval, rvec, T_target2camera = cv2.solvePnP(world_coor, markerCorners[0][0], intr_matrix, distCoeffs,flags=cv2.SOLVEPNP_IPPE_SQUARE)
+            retval, rvec, T_target2camera = cv2.solvePnP(world_coor, markerCorners[0][0], intr_matrix, distCoeffs,flags=cv2.SOLVEPNP_IPPE_SQUARE)
             # retval, rvec, T_target2camera = cv2.solvePnP(world_coor, corners, intr_matrix, distCoeffs )
             # print(corners)
-            retval, mtx, dist, rvec, T_target2camera = cv2.calibrateCamera(objectPoints=[np.float32(world_coor)], imagePoints=[np.float32(corners)], imageSize=(1280,720),cameraMatrix=intr_matrix, distCoeffs=distCoeffs )
+            # retval, mtx, dist, rvec, T_target2camera = cv2.solvePnP(objectPoints=[np.float32(world_coor)], imagePoints=[np.float32(corners)], imageSize=(1280,720),cameraMatrix=intr_matrix, distCoeffs=distCoeffs )
             # print(rvec[0][0])
             if retval:
-                R_target2camera = angle2rotation(rvec[0][0],rvec[0][1],rvec[0][2])
-                T_target2camera = T_target2camera[0]
+                R_target2camera = cv2.Rodrigues(rvec)[0]
+                T_target2camera = T_target2camera
                 status = True
                 # print(rvec)
     return status,R_target2camera,T_target2camera

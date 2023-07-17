@@ -52,7 +52,7 @@ def gripper2base(pnt):
     # thetaZ = rz / 180 * math.pi
     # Calculate the rotation matrix from gripper to base, the shapo is 3x3
     # R_gripper2base = angle2rotation(thetaX, thetaY, thetaZ)
-    R_gripper2base = angle2rotation(rx, ry, rz)
+    R_gripper2base  = cv2.Rodrigues(np.array([rx,ry,rz]))[0]
     # Calculate the transform matrix from gripper to base (base is (0,0,0)), the shape is 3x1
     T_gripper2base = np.array([[x], [y], [z]])
     # print(T_gripper2base)
@@ -74,10 +74,14 @@ def target2camera(img_path,aruco_dict,intr_matrix):
     markerCorners, markerIds, rejectedCandidates = detector.detectMarkers(img)
 
     world_coor = np.zeros((4,3),dtype=np.float64)
-    world_coor[0,:] = [500,500,0]
-    world_coor[1,:] = [500,-500,0]
-    world_coor[2,:] = [-500,-500,0]
-    world_coor[3,:] = [-500,500,0]
+    world_coor[0,:] = [0,1,0]
+    world_coor[1,:] = [1,1,0]
+    world_coor[2,:] = [1,0,0]
+    world_coor[3,:] = [0,0,0]
+    # world_coor[0,:] = [500,500,0]
+    # world_coor[1,:] = [500,-500,0]
+    # world_coor[2,:] = [-500,-500,0]
+    # world_coor[3,:] = [-500,500,0]
     # world_coor[0,:] = [1000,1000,0]
     # world_coor[1,:] = [1000,0,0]
     # world_coor[2,:] = [0,0,0]
@@ -93,7 +97,8 @@ def target2camera(img_path,aruco_dict,intr_matrix):
             
             retval, rvec, T_target2camera = cv2.solvePnP(world_coor, markerCorners[0][0], intr_matrix, distCoeffs,flags=cv2.SOLVEPNP_IPPE_SQUARE)
             if retval:
-                R_target2camera = angle2rotation(rvec[0][0],rvec[1][0],rvec[2][0])
+                # R_target2camera = angle2rotation(rvec[0][0],rvec[1][0],rvec[2][0])
+                R_target2camera = cv2.Rodrigues(rvec)[0]
                 status = True
                 # print(rvec)
     return status,R_target2camera,T_target2camera
