@@ -1,0 +1,4 @@
+[17:57:13.399] camera data path : C://Users//HP//Desktop//hzq//hanglok-robotics//calibration//calibration_data.json
+[17:57:13.400] images and gripper position data path : C://Users//HP//Desktop//hzq//hanglok-robotics//calibration//saved_07_19_14_57/
+[17:57:13.400] Taltal 5 points detected in gripper position document
+[17:57:13.490] The number of valid data : 5

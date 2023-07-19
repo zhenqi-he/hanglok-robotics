@@ -18,7 +18,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--cameraData', default=f'C://Users//HP//Desktop//hzq//hanglok-robotics//calibration//calibration_data.json') 
     # parser.add_argument('--calibrationData_dir', default=f'C://Users//HP//Desktop//hzq//hanglok-robotics//calibration//saved')
-    parser.add_argument('--calibrationData_dir', default=f'C://Users//HP//Desktop//hzq//hanglok-robotics//calibration//saved_07_06_16_38/')
+    parser.add_argument('--calibrationData_dir', default=f'C://Users//HP//Desktop//hzq//hanglok-robotics//calibration//saved_07_19_15_27/')
     # parser.add_argument('--calibrationData_dir', default=f'C://Users//HP//Desktop//hzq//hanglok-robotics//calibration//saved_07_06_14_12/') # images are saved under this dir as n.png and gripper position information is saved in position.txt
     args = parser.parse_args()
 
@@ -85,14 +85,14 @@ def main():
     # num_train = len(R_gripper2base_lists)-5
 
     ## gripper to base
-    R_gripper2base_lists_train = R_gripper2base_lists[:]
-    T_gripper2base_lists_train = T_gripper2base_lists[:]
+    R_gripper2base_lists_train = R_gripper2base_lists[:num_train]
+    T_gripper2base_lists_train = T_gripper2base_lists[:num_train]
     ### base to gripper
     R_base2gripper_lists_train = R_base2gripper_lists[:num_train]
     T_base2gripper_lists_train = T_base2gripper_lists[:num_train]
 
-    R_target2camera_lists_train = R_target2camera_lists[:]
-    T_target2camera_lists_train = T_target2camera_lists[:]
+    R_target2camera_lists_train = R_target2camera_lists[:num_train]
+    T_target2camera_lists_train = T_target2camera_lists[:num_train]
 
     R_camera2gripper, T_camera2gripper = cv2.calibrateHandEye(R_gripper2base_lists_train, T_gripper2base_lists_train,R_target2camera_lists_train, T_target2camera_lists_train,method=cv2.CALIB_HAND_EYE_ANDREFF)
     # R_base2target, T_base2target,R_gripper2cam, T_gripper2cam = cv2.calibrateRobotWorldHandEye(R_target2camera_lists_train, T_target2camera_lists_train,R_base2gripper_lists_train, T_base2gripper_lists_train,method=cv2.CALIB_HAND_EYE_ANDREFF)
@@ -115,16 +115,16 @@ def main():
     ### checking:
     # target2base should remain constant during the whole calibration, thus gripper2base*camera2gripper*target2camera should maintain the same for different gripper positions
     
-    # R_gripper2base_lists_test = R_gripper2base_lists[num_train:]
-    # T_gripper2base_lists_test = T_gripper2base_lists[num_train:]
-    # R_target2camera_lists_test = R_target2camera_lists[num_train:]
-    # T_target2camera_lists_test = T_target2camera_lists[num_train:]
-    R_gripper2base_lists_test = R_gripper2base_lists[:num_train]
-    T_gripper2base_lists_test = T_gripper2base_lists[:num_train]
-    R_base2gripper_lists_test = R_base2gripper_lists[:num_train]
-    T_base2gripper_lists_test = T_base2gripper_lists[:num_train]
-    R_target2camera_lists_test = R_target2camera_lists[:num_train]
-    T_target2camera_lists_test = T_target2camera_lists[:num_train]
+    R_gripper2base_lists_test = R_gripper2base_lists[num_train:]
+    T_gripper2base_lists_test = T_gripper2base_lists[num_train:]
+    R_target2camera_lists_test = R_target2camera_lists[num_train:]
+    T_target2camera_lists_test = T_target2camera_lists[num_train:]
+    # R_gripper2base_lists_test = R_gripper2base_lists[:num_train]
+    # T_gripper2base_lists_test = T_gripper2base_lists[:num_train]
+    # R_base2gripper_lists_test = R_base2gripper_lists[:num_train]
+    # T_base2gripper_lists_test = T_base2gripper_lists[:num_train]
+    # R_target2camera_lists_test = R_target2camera_lists[:num_train]
+    # T_target2camera_lists_test = T_target2camera_lists[:num_train]
     
     M_target2base_list = []
     M_target2base_diff_list = []

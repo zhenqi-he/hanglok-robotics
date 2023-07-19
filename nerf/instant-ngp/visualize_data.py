@@ -21,21 +21,24 @@ CALIBRATION_DATA_DIR: path for previously taken images with auraco marker for ca
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--INPUT_DATA_DIR', default=f'C://Users//HP//Desktop//hzq//hanglok-robotics//calibration//saved_07_19_14_57') 
-    parser.add_argument('--CALIBRATION_DATA_DIR', default=f'C://Users//HP//Desktop//hzq//hanglok-robotics//calibration//saved_07_19_14_57')
+    # parser.add_argument('--INPUT_DATA_DIR', default=r'C:\Users\HP\Desktop\hzq\hanglok-robotics\nerf\processed_07_06_18_40') 
+    parser.add_argument('--CALIBRATION_DATA_DIR', default=r'C:\Users\HP\Desktop\hzq\hanglok-robotics\calibration\saved_07_06_16_38')
+    parser.add_argument('--COLMAP_TRANSFORM_DIR', default=r'C:\Users\HP\Desktop\hzq\hanglok-robotics\nerf\processed_07_06_18_40')
 
     args = parser.parse_args()
-    input_data_path = args.INPUT_DATA_DIR
+    # input_data_path = args.INPUT_DATA_DIR
     calibration_data_path = args.CALIBRATION_DATA_DIR
+    colmap_tansform_json = os.path.join(args.COLMAP_TRANSFORM_DIR,'transforms.json')
+    transforms = read_transformsJSON_data(colmap_tansform_json)
 
-    input_image_path = os.path.join(input_data_path,'images')
-    output_json_path = os.path.join(input_data_path,'transforms.json')
+    # input_image_path = os.path.join(input_data_path,'images')
+    # output_json_path = os.path.join(input_data_path,'transforms.json')
     position_txt_path = os.path.join(calibration_data_path,'position.txt')
     position_info = read_position(position_txt_path)
     intri_matrix = get_cam_calibration()
 
 
-    assert len(glob.glob(os.path.join(input_image_path,'*.png'))) == len(position_info), 'Wrong Input'+ str(len(position_info)) +'  '+str(len(glob.glob(os.path.join(input_image_path,'*.png'))))
+    # assert len(glob.glob(os.path.join(input_image_path,'*.png'))) == len(position_info), 'Wrong Input'+ str(len(position_info)) +'  '+str(len(glob.glob(os.path.join(input_image_path,'*.png'))))
 
     c2w_matrices_list = []
     camera_posX = []
@@ -66,7 +69,7 @@ def main():
             image_name = '0'+str(i)+'.png'
         
         # img_path = os.path.join(input_image_path,image_name)
-        img_path = os.path.join(input_image_path,str(i)+'.png')
+        # img_path = os.path.join(input_image_path,str(i)+'.png')
 
         calibrate_image_name = os.path.join(calibration_data_path,str(i)+'.png')
         # status,R_target2camera,T_target2camera = cal_camera_extrinsic(calibrate_image_name,intr_matrix=intri_matrix)
@@ -84,10 +87,10 @@ def main():
             transpose2[1][1] = -1
             transpose2[2][2] = -1
             transpose2[3][3] = 1
-            transformer_matrix_c2w = transpose2@matrix_c2w
+            transformer_matrix_c2w = matrix_c2w
             c2w_matrices_list.append(matrix_c2w)
-            frame = {"file_path":img_path,"sharpness":50,"transform_matrix":transformer_matrix_c2w.tolist()}
-            frames.append(frame)
+            # frame = {"file_path":img_path,"sharpness":50,"transform_matrix":transformer_matrix_c2w.tolist()}
+            # frames.append(frame)
 
             camera_p =  transformer_matrix_c2w@np.array([0,0,0,1])
             
@@ -103,33 +106,45 @@ def main():
             
 
 
-            
-            # camera_pos.append(camera_p)
-    print(len(frames))
-    #frame = {"file_path":name,"sharpness":b,"transform_matrix": c2w}
-    out = {
-			"camera_angle_x": 1.2235306391055296720,
-			"camera_angle_y": 0.7521676402860731,
-			"fl_x": 912.266,
-			"fl_y": 911.672,
-			"k1": 0,
-			"k2": 0,
-			"k3": 0,
-			"k4": 0,
-			"p1": 0,
-			"p2": 0,
-			"is_fisheye": False,
-			"cx": 637.773,
-			"cy": 375.817,
-			"w": 1280,
-			"h": 720,
-			"aabb_scale": 2,
-			"frames": frames,
-		  }
+    c_p_list_COLMAP = []
 
-    with open(output_json_path, "w") as outfile:
-	    json.dump(out, outfile, indent=2)
-    print(c_p_list)
+    colmap_Xaxis_end = []
+    colmap_Yaxis_end = []
+    colmap_Zaxis_end = []
+    for i in range(len(transforms)):
+        matrix = transforms[i]['transform_matrix']
+        COLMAP_camera_p = matrix@np.array([[0],[0],[0],[1]])
+        c_p_list_COLMAP.append(COLMAP_camera_p)
+        colmap_Xaxis_end.append(matrix@np.array([[1],[0],[0],[1]]))
+        colmap_Yaxis_end.append(matrix@np.array([[0],[1],[0],[1]]))
+        colmap_Zaxis_end.append(matrix@np.array([[0],[0],[1],[1]]))
+
+            # camera_pos.append(camera_p)
+    # print(len(frames))
+    # #frame = {"file_path":name,"sharpness":b,"transform_matrix": c2w}
+    # out = {
+	# 		"camera_angle_x": 1.2235306391055296720,
+	# 		"camera_angle_y": 0.7521676402860731,
+	# 		"fl_x": 912.266,
+	# 		"fl_y": 911.672,
+	# 		"k1": 0,
+	# 		"k2": 0,
+	# 		"k3": 0,
+	# 		"k4": 0,
+	# 		"p1": 0,
+	# 		"p2": 0,
+	# 		"is_fisheye": False,
+	# 		"cx": 637.773,
+	# 		"cy": 375.817,
+	# 		"w": 1280,
+	# 		"h": 720,
+	# 		"aabb_scale": 2,
+	# 		"frames": frames,
+	# 	  }
+
+    # with open(output_json_path, "w") as outfile:
+	#     json.dump(out, outfile, indent=2)
+    # print(c_p_list)
 
     camera_posX = [i[0]/i[3] for i in c_p_list]
     camera_posY = [i[1]/i[3] for i in c_p_list]
@@ -147,6 +162,22 @@ def main():
     camera_Zaxis_end_pntY = [i[1]/i[3] for i in camera_Zaxis_end]
     camera_Zaxis_end_pntZ = [i[2]/i[3] for i in camera_Zaxis_end]
 
+    colmap_posX = [i[0]/i[3] for i in c_p_list_COLMAP]
+    colmap_posY = [i[1]/i[3] for i in c_p_list_COLMAP]
+    colmap_posZ = [i[2]/i[3] for i in c_p_list_COLMAP]
+
+    colmap_Xaxis_end_pntX = [i[0]/i[3] for i in colmap_Xaxis_end]
+    colmap_Xaxis_end_pntY = [i[1]/i[3] for i in colmap_Xaxis_end]
+    colmap_Xaxis_end_pntZ = [i[2]/i[3] for i in colmap_Xaxis_end]
+
+    colmap_Yaxis_end_pntX = [i[0]/i[3] for i in colmap_Yaxis_end]
+    colmap_Yaxis_end_pntY = [i[1]/i[3] for i in colmap_Yaxis_end]
+    colmap_Yaxis_end_pntZ = [i[2]/i[3] for i in colmap_Yaxis_end]
+
+    colmap_Zaxis_end_pntX = [i[0]/i[3] for i in colmap_Zaxis_end]
+    colmap_Zaxis_end_pntY = [i[1]/i[3] for i in colmap_Zaxis_end]
+    colmap_Zaxis_end_pntZ = [i[2]/i[3] for i in colmap_Zaxis_end]
+
     gripper_posX = [i[0] for i in position_info]
     gripper_posY = [i[1] for i in position_info]
     gripper_posZ = [i[2] for i in position_info]
@@ -155,12 +186,18 @@ def main():
     fig = plt.figure()
     ax = plt.axes(projection='3d')
     ax.scatter(camera_posX, camera_posY, camera_posZ, 'green')
+    ax.scatter(colmap_posX, colmap_posY, colmap_posZ, 'black')
     # ax.scatter(gripper_posX, gripper_posY, gripper_posZ, 'green')
     ax.scatter([0], [0], [0], 'black')
     for i in range(len(camera_Yaxis_end)):
         ax.plot([camera_posX[i], camera_Xaxis_end_pntX[i]], [camera_posY[i],camera_Xaxis_end_pntY[i]],zs=[camera_posZ[i],camera_Xaxis_end_pntZ[i]],color='red')
         ax.plot([camera_posX[i], camera_Yaxis_end_pntX[i]], [camera_posY[i],camera_Yaxis_end_pntY[i]],zs=[camera_posZ[i],camera_Yaxis_end_pntZ[i]],color='green')
         ax.plot([camera_posX[i], camera_Zaxis_end_pntX[i]], [camera_posY[i],camera_Zaxis_end_pntY[i]],zs=[camera_posZ[i],camera_Zaxis_end_pntZ[i]],color='blue')
+    
+    for i in range(len(colmap_Xaxis_end_pntX)):
+        ax.plot([colmap_posX[i], colmap_Xaxis_end_pntX[i]], [colmap_posY[i],colmap_Xaxis_end_pntY[i]],zs=[colmap_posZ[i],colmap_Xaxis_end_pntZ[i]],color='red')
+        ax.plot([colmap_posX[i], colmap_Yaxis_end_pntX[i]], [colmap_posY[i],colmap_Yaxis_end_pntY[i]],zs=[colmap_posZ[i],colmap_Yaxis_end_pntZ[i]],color='green')
+        ax.plot([colmap_posX[i], colmap_Zaxis_end_pntX[i]], [colmap_posY[i],colmap_Zaxis_end_pntY[i]],zs=[colmap_posZ[i],colmap_Zaxis_end_pntZ[i]],color='blue')
     plt.show()
         
 if __name__ == '__main__':
