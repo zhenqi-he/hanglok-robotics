@@ -61,19 +61,22 @@ def gripper2base(pnt):
     # return np.array([[rx],[ry],[rz]]), T_gripper2base
 
 
-def check_calculated_extrinsicM(corners,extr_matrix,intr_matrix):
+def check_calculated_extrinsicM(corners,w2c,intr_matrix):
     l2_distance = 0.0
-    for i in range(corners.shape[0]):
-       
-        for n,p in enumerate([[0,1,0],[1,1,0],[1,0,0],[0,0,0]]):
-            p.append(1)
-            c_p = extr_matrix@np.array(p)
-            pix_cor = intr_matrix@c_p[:3]
-
-            pix_cor_2D = [pix_cor[0]/pix_cor[2],pix_cor[1]/pix_cor[2]]
-            l2_distance += 0.5*(math.pow((corners[i][0]-pix_cor_2D[0]),2)+math.pow((corners[i][1]-pix_cor_2D[1]),2))
+    
+    for n,p in enumerate([[0,1,0],[1,1,0],[1,0,0],[0,0,0]]):
+        p.append(1)
+        camera_coor_pnt = w2c@np.array(p)
+        # print(camera_coor_pnt.shape)
+        camera_coor_pnt_3 = np.array([camera_coor_pnt[0]/camera_coor_pnt[3],camera_coor_pnt[1]/camera_coor_pnt[3],camera_coor_pnt[2]/camera_coor_pnt[3]])
+        pix_coor = intr_matrix@camera_coor_pnt_3
+        # print(pix_coor.shape)
+        pix_cor_2D = [pix_coor[0]/pix_coor[2],pix_coor[1]/pix_coor[2]]
+        l2_distance += 0.5*(math.pow((corners[n][0]-pix_cor_2D[0]),2)+math.pow((corners[n][1]-pix_cor_2D[1]),2))
+        # print("gt pixel coordinate: ({},{})\npredicted pixel coordinate: ({},{})".format(corners[n][0],corners[n][1],pix_cor_2D[0],pix_cor_2D[1]))
     l2_distance = l2_distance/corners.shape[0]
-    if l2_distance > 5:
+    print('mean l2 distance ', l2_distance)
+    if l2_distance > 0.1:
         return False
     else:
         return True
@@ -114,11 +117,13 @@ def target2camera(img_path,aruco_dict,intr_matrix):
         distCoeffs = np.zeros((5,1))
         if markerCorners[0][0].shape[0] == 4:
             
-            retval, rvec, T_target2camera = cv2.solvePnP(world_coor, markerCorners[0][0], intr_matrix, distCoeffs,flags=cv2.SOLVEPNP_IPPE_SQUARE)
+            retval, rvec, T_target2camera = cv2.solvePnP(world_coor, markerCorners[0][0], intr_matrix, distCoeffs)
             if retval:
                 # R_target2camera = angle2rotation(rvec[0][0],rvec[1][0],rvec[2][0])
                 R_target2camera = cv2.Rodrigues(rvec)[0]
-                status = True
+                matrix_w2c = np.row_stack((np.column_stack((R_target2camera,T_target2camera)),np.array([0,0,0,1])))
+                if check_calculated_extrinsicM(markerCorners[0][0],matrix_w2c, intr_matrix):
+                    status = True
                 # print(rvec)
     return status,R_target2camera,T_target2camera
     # return status,rvec,T_target2camera

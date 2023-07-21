@@ -13,7 +13,7 @@ import cv2.aruco as aruco
 from calibration.utils import *
 
 ### This is collecting data for hand-eye calibration
-jaka_ip = "10.5.5.100"
+jaka_ip = "192.168.10.200"
 def main():
     # current time
     now = str(datetime.now())

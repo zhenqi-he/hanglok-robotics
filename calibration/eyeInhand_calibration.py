@@ -18,7 +18,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--cameraData', default=f'C://Users//HP//Desktop//hzq//hanglok-robotics//calibration//calibration_data.json') 
     # parser.add_argument('--calibrationData_dir', default=f'C://Users//HP//Desktop//hzq//hanglok-robotics//calibration//saved')
-    parser.add_argument('--calibrationData_dir', default=f'C://Users//HP//Desktop//hzq//hanglok-robotics//calibration//saved_07_19_15_27/')
+    parser.add_argument('--calibrationData_dir', default=f'C://Users//HP//Desktop//hzq//hanglok-robotics//calibration//saved_07_21_12_04/')
     # parser.add_argument('--calibrationData_dir', default=f'C://Users//HP//Desktop//hzq//hanglok-robotics//calibration//saved_07_06_14_12/') # images are saved under this dir as n.png and gripper position information is saved in position.txt
     args = parser.parse_args()
 
@@ -53,6 +53,7 @@ def main():
     R_target2camera_lists = []
     T_target2camera_lists = []
 
+    valid_image_id = []
     for i in range(len(position_info)):
         img_path = os.path.join(data_path,str(i)+'.png')
         status,R_target2camera,T_target2camera = target2camera(img_path,aruco_dict,camera_intrinsic_matrix)
@@ -72,6 +73,7 @@ def main():
             T_base2gripper = M_base2gripper[:3,3]
             R_base2gripper_lists.append(R_base2gripper)
             T_base2gripper_lists.append(T_base2gripper)
+            valid_image_id.append(i)
 
         else:
             # if not successfully detected the 4 corners, then ignore this data
@@ -85,6 +87,10 @@ def main():
     # num_train = len(R_gripper2base_lists)-5
 
     ## gripper to base
+    print("Num of training images: ",num_train)
+    logging.info("Valid images Id: {}".format(valid_image_id))
+    logging.info("Num of training images: {}".format(num_train))
+    print(valid_image_id)
     R_gripper2base_lists_train = R_gripper2base_lists[:num_train]
     T_gripper2base_lists_train = T_gripper2base_lists[:num_train]
     ### base to gripper
@@ -94,7 +100,7 @@ def main():
     R_target2camera_lists_train = R_target2camera_lists[:num_train]
     T_target2camera_lists_train = T_target2camera_lists[:num_train]
 
-    R_camera2gripper, T_camera2gripper = cv2.calibrateHandEye(R_gripper2base_lists_train, T_gripper2base_lists_train,R_target2camera_lists_train, T_target2camera_lists_train,method=cv2.CALIB_HAND_EYE_ANDREFF)
+    R_camera2gripper, T_camera2gripper = cv2.calibrateHandEye(R_gripper2base_lists_train, T_gripper2base_lists_train,R_target2camera_lists_train, T_target2camera_lists_train)
     # R_base2target, T_base2target,R_gripper2cam, T_gripper2cam = cv2.calibrateRobotWorldHandEye(R_target2camera_lists_train, T_target2camera_lists_train,R_base2gripper_lists_train, T_base2gripper_lists_train,method=cv2.CALIB_HAND_EYE_ANDREFF)
     # print(R_camera2gripper)
     # print(T_camera2gripper)
@@ -102,14 +108,14 @@ def main():
     # logging.info('R camera to gripper: {}'.format(R_camera2gripper))
     # logging.info('T camera to gripper: {}'.format(T_camera2gripper))
     # save the calculated matrix to a json file
-    # camera2base_dict = {}
-    # for i in range(3):
-    #     camera2base_dict['T_'+str(i+1)] = T_camera2gripper[i][0]
-    #     for j in range(3):
-    #         camera2base_dict['R'+'_'+str(i+1)+str(j+1)] =  R_camera2gripper[i][j]
+    camera2gripper_dict = {}
+    for i in range(3):
+        camera2gripper_dict['T_'+str(i+1)] = T_camera2gripper[i][0]
+        for j in range(3):
+            camera2gripper_dict['R'+'_'+str(i+1)+str(j+1)] =  R_camera2gripper[i][j]
     
-    # with open(os.path.join('camera2base.json'),'w') as f:
-    #     json.dump(camera2base_dict, f, ensure_ascii=False)
+    with open(os.path.join('camera2base.json'),'w') as f:
+        json.dump(camera2gripper_dict, f, ensure_ascii=False,indent=2)
     
 
     ### checking:
